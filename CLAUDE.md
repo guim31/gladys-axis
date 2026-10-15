@@ -5,8 +5,9 @@ contributors.
 
 ## What this is
 
-A Gladys Assistant **external integration**: a Node.js service (Node 22+, ESM,
-no build step) that runs in its own sandboxed Docker container and talks to
+A Gladys Assistant **external integration** for Axis cameras, door stations
+and network speakers (VAPIX, local): a Node.js service (Node 22+, ESM, no
+build step) that runs in its own sandboxed Docker container and talks to
 Gladys through
 [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js),
 its only runtime dependency. It started from the official JavaScript template.
@@ -31,16 +32,32 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+index.js                          SDK wiring only: registerHandlers, connect, shutdown
+src/app.js                        every SDK handler, registered before connect()
+src/hub.js                        the devices, their event streams, timers, states, actions
+src/devices.js                    Gladys devices: one per video source, feature keys and names
+src/axis/transport.js             network seams: HTTP request, WebSocket upgrade, TCP connect
+src/axis/digest.js                HTTP Digest (MD5, SHA-256), from gladys-dahua / gladys-fritzbox
+src/axis/client.js                VAPIX client: auth (stop at the first refusal), queue, APIs
+src/axis/device.js                describe a device (identity, sources, ports, lights, clips, AOA)
+src/axis/parse.js                 param.cgi lines, applications XML
+src/axis/metadata.js              events: ONVIF XML (RTSP) and events:notify JSON (WebSocket)
+src/axis/model.js                 what an event means: feature, video source, on/off, pulse
+src/axis/websocket.js             minimal WebSocket client (RFC 6455)
+src/axis/rtsp.js                  RTSP metadata stream, RTP interleaved over TCP
+src/axis/events.js                one live stream per device: WebSocket, else RTSP, retries
+src/discovery.js                  mediated mDNS / SSDP answers → Axis devices found
+src/image.js                      snapshots that fit the 150 KB of Gladys (scaled by the camera)
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/widgets.js                    dashboard widget `axis`
+src/texts.js                      every text sent to Gladys, in en, fr, de, es
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
+src/store.js                      /data/axis-state.json (descriptions, learned features)
+scripts/probe.mjs                 read-only probe of a real device (not in the image)
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+                                  and helpers/fakeAxis.js (built from test/fixtures/axis)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +87,10 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** exists in English, French, German and Spanish: action
+  messages, widget content, feature names, manifest texts, and
+  `docs/en.md`, `docs/fr.md`, `docs/de.md`, `docs/es.md`, kept in sync
+  (`test/i18n.test.js` checks the languages and the doc sections).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -233,3 +252,64 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Axis : l'API et les pièges de cette intégration
+
+Sources : `Kane610/axis` (MIT, commit 9b4b947 du 15/10/2026, fixtures d'événements reprises dans
+`test/fixtures/axis/metadata.json`), l'intégration Home Assistant `axis` (Apache-2.0, réponses de
+ses tests reprises et anonymisées) et la doc VAPIX. Aucun appareil Axis n'a été testé :
+`scripts/probe.mjs` est à lancer par l'orchestrateur sur un vrai appareil (`AXIS_EVENTS=rtsp` pour
+éprouver aussi le flux RTSP sur un firmware récent).
+
+- **Trois styles d'API** : CGI texte (`param.cgi` en lignes `root.X.Y=valeur`, un groupe absent
+  répond `# Error: …` en 200), API JSON en POST (`{ apiVersion, context, method, params }` →
+  `{ data }` ou `{ error: { code } }` en 200 : une erreur JSON n'est jamais un statut HTTP), XML
+  (`applications/list.cgi`). `apidiscovery.cgi` dit quelles API JSON existent ; un vieux firmware
+  sans elle répond 404 et tout passe par `param.cgi`. **Lire `param.cgi` groupe par groupe** :
+  un groupe absent dans une liste de groupes fait refuser la liste.
+- **Digest** : le Digest signe l'URI exacte et la méthode (POST compris, corps non signé). RTSP
+  signe l'URL complète, sans `qop` sur les serveurs Axis. **Protection anti-force brute** d'AXIS
+  OS : une adresse est bloquée après des échecs répétés. Un 401 sur un défi qu'on vient de
+  recevoir arrête tout l'appareil (HTTP et RTSP partagent `Credentials`), jusqu'à une nouvelle
+  configuration ou « Tester la connexion ». **Ne jamais ajouter de boucle de réessai sur un 401.**
+  Un 401 à l'upgrade WebSocket est un jeton `wssession` périmé, pas le mot de passe.
+- **Événements, deux transports** : WebSocket `/vapix/ws-data-stream?sources=events&wssession=…`
+  (jeton de 15 s de `wssession.cgi`, puis `events:configure` avec `topicFilter: "//."`, filtre de
+  Kane610 non vérifié) quand l'API `event-streaming-over-websocket` est listée ; sinon flux de
+  métadonnées RTSP `axis-media/media.amp?video=0&audio=0&event=on`. **Home Assistant reçoit le RTP
+  en UDP : ça ne traverse pas le pont Docker** ; ici `RTP/AVP/TCP;interleaved=0-1`, trames `$`,
+  canal, longueur, documents XML joints jusqu'au bit marqueur. Un WebSocket qui échoue deux fois
+  sans s'ouvrir bascule sur RTSP jusqu'au redémarrage.
+- **États initiaux** : le flux RTSP envoie un `PropertyOperation="Initialized"` par propriété au
+  démarrage ; on ne sait pas si le WebSocket le fait. Un `Initialized` met l'état à jour et fait
+  apprendre la fonctionnalité, mais **ne déclenche jamais** de scène (sinon chaque reconnexion
+  « sonne »). Les entrées et l'infrarouge sont relus en HTTP (repli du flux).
+- **Un capteur par événement présent** : le profil VMD 4 envoie `active` sans `classTypes` ; les
+  effets personne/véhicule à 0 qu'il produit **n'apprennent pas** la fonctionnalité (sinon chaque
+  caméra VMD aurait « Personne » et « Véhicule »). Seul un effet à 1 les apprend.
+- **Ports** : les identifiants de l'API de gestion des ports (`"0"`, `"1"`) servent de clés, comme
+  les `port` des événements selon Home Assistant. `port.cgi` numérote à partir de 1 (`1:/` active
+  le port 0). Une sortie « active » = l'état physique opposé à `normalState`. `port -1` dans un
+  événement = n'importe quel port, ignoré.
+- **Bouton d'appel des portiers** : une entrée nommée `Call button`/`Doorbell`/`Appel`…, ou
+  l'entrée 0 d'un I8116-E (seul cas vérifié par Home Assistant). Non vérifié sur A8105-E,
+  A8207-VE, I8016-LVE. Il ne devient jamais une fonctionnalité `input_`.
+- **Sorties** : jamais une fonctionnalité, action de scène `set_output` seulement, refusée tant
+  que `allow_outputs` est faux (défaut), envoyée une fois, jamais réessayée. Défaut du mode :
+  `pulse_1`, qui ne laisse jamais une porte ouverte.
+- **Nom d'une entrée** : un appareil peut nommer son entrée comme une autre fonctionnalité (la
+  M1065-LW appelle `PIR sensor` l'entrée de son PIR) : elle devient « Entrée 1 (PIR sensor) »
+  pour garder des noms distincts.
+- **Images** : `image.cgi?camera=N&resolution=…&compression=…` ; la caméra réduit elle-même, pas
+  de décodeur JPEG dans le conteneur (contrairement à gladys-dahua). `resolution` doit être une
+  valeur de `root.Properties.Image.Resolution`. Un haut-parleur n'a pas de `jpeg` dans
+  `Properties.Image.Format` : pas de fonctionnalité image.
+- **Découverte médiée** : mDNS `_axis-video._tcp` (TXT `macaddress`, nom « AXIS M1065-LW -
+  00408C123456 ») et SSDP `urn:axis-com:service:BasicService:1` (USN
+  `uuid:Upnp-BasicDevice-1_0-<MAC>`) ; le numéro de série Axis est l'adresse MAC. **Une seule
+  entrée SSDP** : le cœur ne scanne que la première. Les appareils trouvés ne sont jamais
+  contactés sans configuration (un mot de passe essayé au hasard compterait dans l'anti-force
+  brute) : l'action « Chercher sur le réseau » les liste, l'utilisateur copie l'adresse.
+- `node:stream` `duplexPair` (Node ≥ 22.6) relie le client au faux appareil en mémoire ; détruire
+  un bout ne ferme pas l'autre (seul `end()` se propage) : les clients écoutent `end` autant que
+  `close`.

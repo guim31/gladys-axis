@@ -1,0 +1,52 @@
+{
+  "_about": "AXIS P4705-PLVE, two video sources (two Gladys devices). Values invented.",
+  "rtspPort": 8554,
+  "apiList": [
+    {
+      "id": "api-discovery",
+      "version": "1.0",
+      "name": "API Discovery Service"
+    },
+    {
+      "id": "basic-device-info",
+      "version": "1.1",
+      "name": "Basic Device Information"
+    },
+    {
+      "id": "param-cgi",
+      "version": "1.0",
+      "name": "Legacy Parameter Handling"
+    },
+    {
+      "id": "event-streaming-over-websocket",
+      "version": "1.0",
+      "name": "Event streaming over WebSocket"
+    }
+  ],
+  "basicDeviceInfo": {
+    "ProdNbr": "P4705-PLVE",
+    "ProdType": "Panoramic Camera",
+    "SerialNumber": "E827253C4D5E",
+    "Version": "11.11.112",
+    "Architecture": "aarch64",
+    "Brand": "AXIS",
+    "BuildDate": "Jun 02 2026 10:24",
+    "HardwareID": "9A1",
+    "ProdFullName": "AXIS P4705-PLVE Panoramic Camera",
+    "ProdShortName": "AXIS P4705-PLVE",
+    "ProdVariant": "",
+    "Soc": "Axis Artpec-8",
+    "SocSerialNumber": "00000000-00000000-00000000-00000000",
+    "WebURL": "http://www.axis.com"
+  },
+  "params": {
+    "root.Properties.Image": "root.Properties.Image.Format=jpeg,mjpeg,h264,h265\nroot.Properties.Image.Resolution=1920x1080,1280x720,640x360,320x180\n",
+    "root.Properties.Audio": "",
+    "root.ImageSource": "root.ImageSource.NbrOfSources=2\nroot.ImageSource.I0.Name=Left\nroot.ImageSource.I1.Name=Right\n",
+    "root.Network.RTSP": "root.Network.RTSP.Port=8554\n",
+    "root.Brand.ProdNbr": "root.Brand.ProdNbr=P4705-PLVE\n"
+  },
+  "ports": [],
+  "applications": "<reply result=\"ok\">\n <application Name=\"vmd\" NiceName=\"AXIS Video Motion Detection\" Vendor=\"Axis Communications\" Version=\"4.5-1\" ApplicationID=\"143440\" License=\"None\" Status=\"Running\" ConfigurationPage=\"local/vmd/config.html\" VendorHomePage=\"http://www.axis.com\" />\n</reply>",
+  "events": ["VMD4_C1P1_INIT", "VMD4_C2P1_INIT"]
+}

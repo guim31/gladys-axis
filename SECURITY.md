@@ -30,6 +30,24 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration holds and where:
+
+- **Secrets**: the user names and passwords of the Axis devices live in the
+  Gladys configuration of the integration (`secret` fields), never in `/data`,
+  never in a log, an error message, a URL or an action result (the stream
+  address action shows `PASSWORD` in their place).
+- **`/data/axis-state.json`**: what each device is (serial number, model,
+  video sources, ports, lights, clips, analytics scenarios) and the features
+  learned from its events. Nothing secret.
+- **Network**: only the configured devices are contacted, over HTTP or HTTPS
+  (VAPIX, the WebSocket event stream) and RTSP (the metadata stream, older
+  firmwares). The self-signed certificate of a device is accepted. The
+  network search goes through Gladys (mediated mDNS and SSDP); the
+  integration itself never scans the network. No cloud service.
+- **Door stations**: the outputs (relays) may open a door; they are a scene
+  action only, disabled until allowed in the configuration, sent once and
+  never retried.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and the Axis devices and their firmware.

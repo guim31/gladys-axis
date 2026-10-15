@@ -1,0 +1,182 @@
+{
+  "_about": "AXIS P3268-LVE, AXIS OS 11: WebSocket events, port management, an IR light, AXIS Object Analytics and VMD 4, audio clips. Shapes from the Home Assistant axis tests and Kane610/axis (MIT); values invented.",
+  "rtspPort": 554,
+  "apiList": [
+    {
+      "id": "api-discovery",
+      "version": "1.0",
+      "name": "API Discovery Service"
+    },
+    {
+      "id": "basic-device-info",
+      "version": "1.1",
+      "name": "Basic Device Information"
+    },
+    {
+      "id": "param-cgi",
+      "version": "1.0",
+      "name": "Legacy Parameter Handling"
+    },
+    {
+      "id": "io-port-management",
+      "version": "1.0",
+      "name": "IO Port Management"
+    },
+    {
+      "id": "light-control",
+      "version": "1.1",
+      "name": "Light Control"
+    },
+    {
+      "id": "event-streaming-over-websocket",
+      "version": "1.0",
+      "name": "Event streaming over WebSocket"
+    },
+    {
+      "id": "mqtt-client",
+      "version": "1.0",
+      "name": "MQTT Client API"
+    }
+  ],
+  "basicDeviceInfo": {
+    "ProdNbr": "P3268-LVE",
+    "ProdType": "Dome Camera",
+    "SerialNumber": "ACCC8E1A2B3C",
+    "Version": "11.11.112",
+    "Architecture": "aarch64",
+    "Brand": "AXIS",
+    "BuildDate": "Jun 02 2026 10:24",
+    "HardwareID": "9A1",
+    "ProdFullName": "AXIS P3268-LVE Dome Camera",
+    "ProdShortName": "AXIS P3268-LVE",
+    "ProdVariant": "",
+    "Soc": "Axis Artpec-8",
+    "SocSerialNumber": "00000000-00000000-00000000-00000000",
+    "WebURL": "http://www.axis.com"
+  },
+  "params": {
+    "root.Properties.Image": "root.Properties.Image.Format=jpeg,mjpeg,h264,h265\nroot.Properties.Image.NbrOfViews=2\nroot.Properties.Image.Resolution=3840x2160,2560x1440,1920x1080,1280x720,1024x576,800x450,640x360,480x270,320x180,160x90\nroot.Properties.Image.Rotation=0,180\n",
+    "root.Properties.Audio": "root.Properties.Audio.Audio=yes\nroot.Properties.Audio.DuplexMode=full,half,post,get\nroot.Properties.Audio.Format=g711,g726,aac,opus\n",
+    "root.ImageSource": "root.ImageSource.NbrOfSources=1\nroot.ImageSource.I0.Name=Camera 1\nroot.ImageSource.I0.Sensor.ExposureValue=50\n",
+    "root.MediaClip": "root.MediaClip.MaxGroups=100\nroot.MediaClip.M0.Location=/etc/audioclips/camera_clicks16k.au\nroot.MediaClip.M0.Name=Camera clicks\nroot.MediaClip.M0.Type=audio\nroot.MediaClip.M1.Location=/etc/audioclips/pir_alarm_16k.au\nroot.MediaClip.M1.Name=Alarm\nroot.MediaClip.M1.Type=audio\nroot.MediaClip.M7.Location=/etc/audioclips/welcome.au\nroot.MediaClip.M7.Name=Welcome\nroot.MediaClip.M7.Type=audio\n",
+    "root.Network.RTSP": "root.Network.RTSP.AllowClientTransportSettings=no\nroot.Network.RTSP.Enabled=yes\nroot.Network.RTSP.Port=554\n",
+    "root.Brand.ProdNbr": "root.Brand.ProdNbr=P3268-LVE\n"
+  },
+  "ports": [
+    {
+      "port": "0",
+      "configurable": true,
+      "usage": "",
+      "name": "Garden gate",
+      "direction": "input",
+      "state": "open",
+      "normalState": "open"
+    },
+    {
+      "port": "1",
+      "configurable": true,
+      "usage": "",
+      "name": "Garage light",
+      "direction": "output",
+      "state": "open",
+      "normalState": "open"
+    }
+  ],
+  "lights": [
+    {
+      "lightID": "led0",
+      "lightType": "IR",
+      "enabled": true,
+      "synchronizeDayNightMode": true,
+      "lightState": false,
+      "automaticIntensityMode": true,
+      "automaticAngleOfIlluminationMode": true,
+      "nrOfLEDs": 4,
+      "error": false,
+      "errorInfo": ""
+    }
+  ],
+  "applications": "<reply result=\"ok\">\n <application Name=\"vmd\" NiceName=\"AXIS Video Motion Detection\" Vendor=\"Axis Communications\" Version=\"4.5-1\" ApplicationID=\"143440\" License=\"None\" Status=\"Running\" ConfigurationPage=\"local/vmd/config.html\" VendorHomePage=\"http://www.axis.com\" />\n <application Name=\"objectanalytics\" NiceName=\"AXIS Object Analytics\" Vendor=\"Axis Communications\" Version=\"1.3-12\" ApplicationID=\"338210\" License=\"None\" Status=\"Running\" ConfigurationPage=\"local/objectanalytics/config.html\" VendorHomePage=\"http://www.axis.com\" />\n</reply>",
+  "objectanalytics": {
+    "devices": [
+      {
+        "id": 1,
+        "rotation": 0,
+        "type": "camera"
+      }
+    ],
+    "metadataOverlay": [],
+    "perspectives": [],
+    "scenarios": [
+      {
+        "devices": [
+          {
+            "id": 1
+          }
+        ],
+        "filters": [],
+        "id": 1,
+        "name": "Driveway",
+        "objectClassifications": [
+          {
+            "type": "human"
+          }
+        ],
+        "perspectives": [],
+        "presets": [],
+        "triggers": [
+          {
+            "type": "includeArea",
+            "vertices": [
+              [-0.97, -0.97],
+              [-0.97, 0.97],
+              [0.97, 0.97],
+              [0.97, -0.97]
+            ]
+          }
+        ],
+        "type": "motion"
+      },
+      {
+        "devices": [
+          {
+            "id": 1
+          }
+        ],
+        "filters": [],
+        "id": 2,
+        "name": "Street",
+        "objectClassifications": [
+          {
+            "type": "vehicle",
+            "selectedSubTypes": ["car", "truck"]
+          }
+        ],
+        "perspectives": [],
+        "presets": [],
+        "triggers": [
+          {
+            "type": "fence",
+            "vertices": [
+              [-0.5, 0],
+              [0.5, 0]
+            ]
+          }
+        ],
+        "type": "fence"
+      }
+    ],
+    "status": {}
+  },
+  "events": [
+    "DAYNIGHT_INIT",
+    "AUDIO_INIT",
+    "GLOBAL_SCENE_CHANGE",
+    "LIGHT_STATUS_INIT",
+    "OBJECT_ANALYTICS_INIT",
+    "OBJECT_ANALYTICS_S2_INIT",
+    "VMD4_ANY_INIT",
+    "VMD4_C1P1_INIT",
+    "PORT_0_INPUT_INIT"
+  ]
+}
