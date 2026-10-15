@@ -1,67 +1,242 @@
-# Template de démonstration
+# Axis
 
-Ceci est la documentation utilisateur de l'intégration. Gladys ré-héberge ce
-fichier et affiche un lien **Documentation** permanent vers lui dans l'écran
-de configuration (dans la langue de l'utilisateur, avec l'anglais en repli) —
-c'est au moment de configurer que l'utilisateur en a le plus besoin. Gardez
-les courtes indications d'accueil dans les blocs `section` du `config_schema`
-du manifest ; mettez ici le pas-à-pas détaillé (captures d'écran, dépannage…).
+Intègre à Gladys les **caméras réseau**, les **portiers** (interphones
+réseau) et les **haut-parleurs réseau** Axis, **en local**, par leur API
+VAPIX : images des caméras, mouvement, objets, personnes et véhicules vus par
+AXIS Object Analytics, détecteur PIR, détection sonore, sabotage, jour et
+nuit, entrées numériques, sonnerie des portiers, éclairage infrarouge, clips
+audio des haut-parleurs, et sorties (relais) pour vos scènes. Aucun compte
+cloud, rien ne sort de votre réseau.
 
-## Ce que vous obtenez
+> **Developed without the hardware: feedback welcome.** Cette intégration a
+> été écrite d'après la documentation publique VAPIX, l'intégration Home
+> Assistant `axis` et la bibliothèque `axis` de Kane610 (avec leurs vraies
+> réponses d'appareils), sans appareil Axis sous la main. Si quelque chose ne
+> marche pas comme décrit, ouvrez un ticket sur
+> [github.com/guim31/gladys-axis/issues](https://github.com/guim31/gladys-axis/issues)
+> avec les logs de l'intégration (`LOG_LEVEL=debug`).
+>
+> Cette intégration n'est pas affiliée à Axis Communications. AXIS est une
+> marque d'Axis AB.
 
-Six appareils de démonstration apparaissent après l'installation : une
-station météo (vraies données Open-Meteo), un interrupteur, une lampe
-variable, une prise connectée avec mesure de puissance, un détecteur de
-mouvement et une caméra.
+## Ce qu'il vous faut
 
-## Configuration
+- Une caméra, un portier ou un haut-parleur Axis joignable depuis Gladys sur
+  votre réseau, sa page web fonctionnelle (port 80, ou 443 en HTTPS).
+- Un **compte local** de l'appareil. Un compte **opérateur** suffit à tout
+  (images, événements, éclairage infrarouge, sorties, clips) ; un compte
+  observateur ne peut que lire. Le premier compte d'un appareil Axis est
+  `root` : mieux vaut créer un compte opérateur dédié `gladys`.
+- Pour les événements en direct : AXIS OS 11 ou plus récent utilise le flux
+  d'événements WebSocket par le port web ; les firmwares plus anciens
+  utilisent le flux de métadonnées RTSP, le port RTSP (554 par défaut) doit
+  donc aussi être joignable.
+- Gladys **5.1 ou plus récent**.
 
-1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Renseignez la **latitude** et la **longitude** que la station météo de
-   démonstration doit observer (Paris par défaut), et choisissez votre unité
-   de température. L'**intervalle de rafraîchissement** règle la fréquence
-   de lecture de la station météo et de la puissance de la prise : toutes
-   les 5 minutes par défaut, toutes les minutes au plus.
-3. Enregistrez : les appareils apparaissent dans l'onglet **Découverte**,
-   prêts à être ajoutés.
+## Mise en route
 
-Le réglage **Préférer la connexion locale** pilote la prise de
-démonstration : elle affiche en badge le canal réellement utilisé (local ou
-cloud), avec un point orange quand elle fonctionne en mode dégradé (local
-refusé, bascule cloud).
+### Réglages
 
-## Actions
+Dans Gladys, ouvrez l'intégration, puis son onglet **Configuration** :
 
-- **Tester le fournisseur météo** — effectue une requête en direct vers
-  Open-Meteo et affiche la température et l'humidité actuelles sous le
-  bouton.
-- **Identifier un appareil** — choisissez un de vos appareils dans la liste
-  et il se signale (la lampe de démonstration « clignote » dans les logs).
+- **Adresses des appareils** : les adresses IP (ou noms) de vos appareils,
+  séparées par des virgules, ex. `192.168.1.90, 192.168.1.91`. Ajoutez
+  `:port` si la page web n'est pas sur le port 80, et `https://` pour HTTPS
+  (le certificat auto-signé de l'appareil est accepté). Ne mettez jamais le
+  mot de passe dans l'adresse.
+- **Nom d'utilisateur** et **Mot de passe** : le compte local des appareils.
+  Le mot de passe n'est envoyé qu'aux appareils, jamais à un cloud.
+- **Adresses des autres appareils**, **Leur nom d'utilisateur**, **Leur mot de passe** : facultatifs, pour des appareils (un portier par exemple) aux
+  identifiants différents.
+- **Images des caméras** : fréquence de rafraîchissement de l'image de
+  chaque caméra ajoutée à Gladys (toutes les 5 minutes par défaut, ou
+  seulement sur événement). Une personne détectée ou une sonnerie envoie
+  toujours une image neuve.
+- **Autoriser le pilotage des sorties** : désactivé par défaut. Sur un
+  portier, les sorties (relais) ouvrent la porte ou le portail : elles ne sont
+  pilotées que par l'action de scène, une fois ce réglage activé, et ne sont
+  jamais un interrupteur.
+- **Langue des noms** : la langue des noms de fonctionnalités (fixés à
+  l'ajout d'un appareil) et des textes envoyés aux scènes. Français par
+  défaut.
 
-## Scènes
+Ouvrez ensuite l'onglet **Découverte** : chaque caméra (chaque source vidéo
+d'une caméra multicapteur), portier et haut-parleur y figure. Ajoutez ceux que
+vous voulez.
 
-L'intégration ajoute ses propres cartes à l'éditeur de scènes (Gladys 5.1
-ou plus récent), dans la catégorie **Intégrations** :
+### Actions de configuration
 
-- **Mouvement détecté** (déclencheur) — lance la scène quand un détecteur
-  de démonstration voit bouger quelque chose. Choisissez éventuellement le
-  détecteur et ce qui a bougé (personne, animal) ; laissés vides, toute
-  détection correspond. Les actions suivantes peuvent lire ce qui a bougé
-  avec `{{triggerEvent.data.target}}`.
-- **Identifier un appareil** (action) — fait se signaler l'appareil choisi.
-  Elle indique si l'appareil a pu se signaler, pour que les actions
-  suivantes puissent en dépendre.
+- **Tester la connexion** : relit tous les appareils et indique, une ligne
+  par appareil, son modèle, ses sources vidéo et comment arrivent ses
+  événements (WebSocket ou RTSP). Après un mot de passe refusé, c'est le
+  moyen de réessayer une fois le mot de passe corrigé.
+- **Chercher sur le réseau** : demande à Gladys de chercher les appareils
+  Axis du réseau (mDNS `_axis-video._tcp` et UPnP) et les liste : configuré,
+  à ajouter (copiez son adresse dans **Adresses des appareils**), ou trouvé à
+  une nouvelle adresse. Bonjour et UPnP doivent être actifs sur les appareils
+  (ils le sont par défaut).
+- **Clips audio** : liste les clips audio de chaque appareil, par numéro et
+  nom, pour l'action de scène **Jouer un clip audio**.
+- **Afficher l'adresse du flux vidéo** : l'adresse RTSP d'une caméra, à
+  utiliser avec l'intégration « Caméra RTSP » de Gladys. Le mot de passe est
+  remplacé par `PASSWORD` : saisissez-le vous-même.
+
+## Les appareils
+
+### Caméras
+
+Chaque source vidéo devient un appareil. Ses fonctionnalités, chacune
+seulement si la caméra l'a :
+
+| Fonctionnalité           | Ce qu'elle montre                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| **Image**                | L'image de la caméra, rafraîchie selon **Images des caméras**                            |
+| **En ligne**             | La caméra répond                                                                         |
+| **Mouvement**            | AXIS Video Motion Detection, les profils de surveillance, les règles ONVIF               |
+| **Analyse d'objets**     | Un scénario AXIS Object Analytics est déclenché                                          |
+| **Personne**             | Un objet classé comme personne (AXIS Object Analytics)                                   |
+| **Véhicule**             | Un objet classé comme véhicule (AXIS Object Analytics)                                   |
+| **Détecteur PIR**        | Le détecteur PIR de la caméra                                                            |
+| **Détection sonore**     | Le déclencheur de niveau sonore de la caméra                                             |
+| **Sabotage**             | La caméra a été déplacée, masquée ou éblouie                                             |
+| **Mode nuit**            | La caméra est en mode nuit (filtre infrarouge retiré)                                    |
+| **Éclairage infrarouge** | L'illuminateur infrarouge : allumé ou éteint depuis Gladys                               |
+| **Entrée**               | Chaque entrée numérique, nommée comme sur la caméra (ex. `Garden gate`), ou « Entrée 1 » |
+
+Les détections qu'une caméra signale dans ses événements ajoutent leur
+fonctionnalité (un capteur par événement présent) : s'il en manque une,
+déclenchez la détection une fois, puis rouvrez **Découverte** et mettez à
+jour l'appareil.
+
+Les sorties (relais) d'une caméra ne sont jamais une fonctionnalité : voir
+l'action de scène **Piloter une sortie (relais)**.
+
+### Portiers
+
+Un portier Axis (A8105-E, A8207-VE, I8016-LVE, I8116-E…) est une caméra avec
+une fonctionnalité **Sonnette** : elle passe à 1 quand quelqu'un appuie sur le
+bouton d'appel, revient à 0 dix secondes après, et déclenche **Quelqu'un sonne
+au portier** avec une image neuve. Le bouton d'appel est reconnu quand son
+entrée est nommée ainsi (`Call button`, `Doorbell`, `Appel`…), ou comme
+première entrée d'un AXIS I8116-E. Son relais de porte est une sortie : voir
+**Piloter une sortie (relais)**.
+
+### Haut-parleurs réseau
+
+Un haut-parleur réseau Axis (C1310-E, C1410…) devient un appareil avec la
+fonctionnalité **En ligne** ; il joue ses clips audio par l'action de scène
+**Jouer un clip audio**.
 
 ## Tableau de bord
 
-Ajoutez le widget **État de la démo** à un tableau de bord : il affiche en
-direct la température de la station météo et la puissance de la prise du
-bureau, la connexion utilisée par la prise (en orange si dégradée) et la
-position observée. Son bouton **Identifier la lampe** fait se signaler la
-lampe de démonstration.
+Le widget **Axis** montre les appareils en ligne, les personnes et sonneries
+des dernières 24 heures, les plus récentes avec leur image, et l'état de
+chaque appareil. Dans ses réglages, choisissez un appareil, ou laissez vide
+pour tous.
+
+Les images des caméras et chaque fonctionnalité s'ajoutent aussi au tableau
+de bord avec les boîtes habituelles de Gladys.
+
+## Scènes
+
+### Déclencheurs
+
+- **Personne détectée par une caméra** : une caméra a vu une personne (AXIS
+  Object Analytics ou un profil de surveillance). Filtre sur la caméra ; les
+  variables donnent le nom de la caméra et celui du scénario. L'image de la
+  caméra est à jour au début de la scène : « envoyer l'image de la caméra »
+  envoie la bonne. Un événement par caméra toutes les 15 secondes au plus.
+- **Quelqu'un sonne au portier** : le bouton d'appel a été pressé. Filtre sur
+  le portier ; la variable donne son nom. L'image est à jour, elle aussi.
+
+Les fonctionnalités (**Mouvement**, **Personne**, **Entrée**…) peuvent aussi
+lancer une scène avec le déclencheur habituel « changement d'état d'un
+appareil ».
+
+### Actions
+
+- **Rafraîchir l'image d'une caméra** : prend une image neuve d'une caméra
+  pour Gladys, à envoyer ensuite dans un message.
+- **Jouer un clip audio** : joue un clip enregistré sur un haut-parleur, un
+  portier ou une caméra Axis, par son numéro ou son nom (vide : le premier
+  clip). L'action de configuration **Clips audio** les liste.
+- **Piloter une sortie (relais)** : une impulsion de 1, 3 ou 10 secondes, ou
+  activer ou désactiver une sortie, numérotée à partir de 1 parmi les sorties
+  de l'appareil. Sur un portier, cela ouvre la porte : seulement une fois
+  **Autoriser le pilotage des sorties** activé, et la commande est envoyée
+  une fois, jamais répétée.
+
+### Idées de scènes
+
+- **On sonne à la porte** : quand quelqu'un sonne au portier, envoyer l'image
+  du portier dans un message, et jouer un carillon sur le haut-parleur du
+  salon avec **Jouer un clip audio**.
+- **Veille de nuit** : quand une personne est détectée par la caméra de
+  l'allée entre minuit et 6 h, allumer l'éclairage du jardin, jouer le clip
+  « Avertissement » sur le haut-parleur pavillon et envoyer l'image.
+- **Ouvrir le portail à une arrivée connue** : quand votre téléphone arrive à
+  la maison, piloter la sortie 1 du portier par une impulsion d'une seconde
+  (seulement après l'avoir autorisé, et si vous acceptez le risque d'une scène
+  qui ouvre une porte).
+
+## Vidéo en direct
+
+Gladys affiche des images de caméra, pas un flux vidéo en direct. Pour la
+vidéo en direct, utilisez l'action **Afficher l'adresse du flux vidéo** et
+ajoutez l'adresse RTSP à l'intégration « Caméra RTSP » de Gladys.
+
+## Rafraîchissement et limites
+
+- Les événements arrivent en direct : WebSocket sous AXIS OS 11 et plus
+  récent, flux de métadonnées RTSP sinon, toujours une connexion par appareil
+  ouverte par Gladys (rien à ouvrir dans votre box). Un flux perdu est rouvert
+  (après 5 secondes, puis jusqu'à 5 minutes entre deux essais).
+- L'intégration relit les entrées et l'éclairage infrarouge toutes les
+  5 minutes, chaque minute quand un flux d'événements est coupé. Elle
+  n'attend jamais que Gladys interroge les appareils.
+- Les images sont prises à 640 pixels de large au plus, réduites par la
+  caméra (Gladys prend des images de 150 Ko au plus), jamais plus d'une
+  toutes les 6 secondes par caméra.
+- Une valeur qui ne change pas est renvoyée toutes les 6 heures, pour que
+  Gladys ne l'affiche jamais comme ancienne.
+- VAPIX n'a pas de quota. Les appareils Axis bloquent une adresse un temps
+  après des mots de passe erronés répétés : l'intégration s'arrête au premier
+  refus et ne réessaie qu'avec une nouvelle configuration ou avec **Tester la
+  connexion**.
 
 ## Dépannage
 
-L'intégration journalise tout ce qu'elle fait : consultez les logs de
-l'intégration depuis l'interface Gladys (ou `docker logs` sur l'hôte) avec
-`LOG_LEVEL=debug` pour le détail complet.
+- **« Nom d'utilisateur ou mot de passe refusé »** : vérifiez-les sur la page
+  web de l'appareil, corrigez-les dans la configuration, puis utilisez
+  **Tester la connexion**.
+- **« Ce compte n'a pas ce droit »** : utilisez un compte opérateur.
+- **L'appareil ne répond pas** : vérifiez son adresse, son port, et que
+  Gladys l'atteint (même réseau, pas de pare-feu entre les deux).
+- **« Les événements en direct sont coupés »** : sur un firmware ancien,
+  vérifiez que le port RTSP (554) est joignable et que RTSP est activé sur
+  l'appareil. Les entrées et l'éclairage infrarouge sont toujours relus
+  chaque minute.
+- **Une détection manque** : activez-la sur la caméra (scénario AXIS Object
+  Analytics, profil VMD, déclencheur de niveau sonore), déclenchez-la une
+  fois, puis mettez à jour l'appareil dans **Découverte**.
+- **La sonnerie d'un portier n'est pas vue** : nommez `Call button` l'entrée
+  du bouton d'appel sur le portier, puis utilisez **Tester la connexion**.
+- **Détails** : réglez `LOG_LEVEL=debug` sur l'intégration pour voir chaque
+  événement et chaque lecture dans ses logs. Les mots de passe n'y
+  apparaissent jamais.
+
+## Limites
+
+- Développée sans le matériel : les sujets d'événements, les flux et la règle
+  du bouton d'appel viennent de la documentation et du travail de Home
+  Assistant, pas d'un essai sur un vrai appareil.
+- Pas de vidéo en direct dans Gladys (images seulement), pas de
+  pan, tilt ni zoom.
+- Les sorties sont une action de scène seulement, par choix : jamais un
+  interrupteur, jamais accessibles à un assistant vocal.
+- Les clips audio sont joués, pas envoyés : enregistrez-les sur l'appareil.
+- Sur une caméra multicapteur, les fonctionnalités d'AXIS Object Analytics
+  apparaissent d'abord sur la première source vidéo ; les autres les gagnent
+  à leur première détection.
+- Les appareils trouvés par la recherche réseau ne s'ajoutent pas seuls :
+  copiez leur adresse dans la configuration.
