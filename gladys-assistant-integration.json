@@ -8,8 +8,8 @@
     "de": "Axis-Kameras, Türsprechanlagen und Lautsprecher lokal: Bilder, Erkennungen, Klingeln.",
     "es": "Cámaras, porteros y altavoces Axis en local: imágenes, detecciones, timbre y clips."
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/guim31/gladys-axis:1.0.0",
+  "version": "1.0.1",
+  "docker_image": "ghcr.io/guim31/gladys-axis:1.0.1",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/guim31/gladys-axis/main/cover.png",
   "categories": ["security"],

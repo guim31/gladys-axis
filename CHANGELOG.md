@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-15
+
 ### Added
 
 - Axis cameras, door stations and network speakers in Gladys, locally, over
@@ -32,4 +34,5 @@ the notes of the version's GitHub Release.
   address".
 - Documentation in English, French, German and Spanish.
 
-[Unreleased]: https://github.com/guim31/gladys-axis/commits/main
+[Unreleased]: https://github.com/guim31/gladys-axis/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/guim31/gladys-axis/releases/tag/v1.0.1

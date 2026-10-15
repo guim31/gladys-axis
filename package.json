@@ -1,6 +1,6 @@
 {
   "name": "gladys-axis",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Gladys Assistant integration for Axis cameras, door stations and network speakers (VAPIX, local).",
   "type": "module",
