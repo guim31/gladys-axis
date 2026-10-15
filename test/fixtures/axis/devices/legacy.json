@@ -1,0 +1,51 @@
+{
+  "_about": "AXIS M1065-LW, firmware 9.80 LTS: no port management, no WebSocket (RTSP events), a PIR sensor on its input. From the Home Assistant axis tests (BRAND, PORTS, PROPERTIES responses); serial invented.",
+  "rtspPort": 554,
+  "apiList": [
+    {
+      "id": "api-discovery",
+      "version": "1.0",
+      "name": "API Discovery Service"
+    },
+    {
+      "id": "basic-device-info",
+      "version": "1.1",
+      "name": "Basic Device Information"
+    },
+    {
+      "id": "param-cgi",
+      "version": "1.0",
+      "name": "Legacy Parameter Handling"
+    }
+  ],
+  "basicDeviceInfo": {
+    "ProdNbr": "M1065-LW",
+    "ProdType": "Network Camera",
+    "SerialNumber": "ACCC8E4D5E6F",
+    "Version": "9.80.3.8",
+    "Architecture": "aarch64",
+    "Brand": "AXIS",
+    "BuildDate": "Jun 02 2026 10:24",
+    "HardwareID": "9A1",
+    "ProdFullName": "AXIS M1065-LW Network Camera",
+    "ProdShortName": "AXIS M1065-LW",
+    "ProdVariant": "",
+    "Soc": "Axis Artpec-8",
+    "SocSerialNumber": "00000000-00000000-00000000-00000000",
+    "WebURL": "http://www.axis.com"
+  },
+  "params": {
+    "root.Properties.Image": "root.Properties.Image.Format=jpeg,mjpeg,h264\nroot.Properties.Image.NbrOfViews=2\nroot.Properties.Image.Resolution=1920x1080,1280x960,1280x720,1024x768,1024x576,800x600,640x480,640x360,352x240,320x240\nroot.Properties.Image.Rotation=0,180\n",
+    "root.Properties.Audio": "root.Properties.Audio.Audio=yes\nroot.Properties.Audio.DuplexMode=half\n",
+    "root.ImageSource": "root.ImageSource.I0.Name=Camera\n",
+    "root.IOPort": "root.IOPort.I0.Configurable=no\nroot.IOPort.I0.Direction=input\nroot.IOPort.I0.Input.Name=PIR sensor\nroot.IOPort.I0.Input.Trig=closed\n",
+    "root.MediaClip": "",
+    "root.Network.RTSP": "root.Network.RTSP.Port=554\n",
+    "root.Brand.ProdNbr": "root.Brand.ProdNbr=M1065-LW\n"
+  },
+  "activePorts": {
+    "1": "inactive"
+  },
+  "applications": "<reply result=\"ok\">\n <application Name=\"vmd\" NiceName=\"AXIS Video Motion Detection\" Vendor=\"Axis Communications\" Version=\"4.2-0\" ApplicationID=\"143440\" License=\"None\" Status=\"Running\" ConfigurationPage=\"local/vmd/config.html\" VendorHomePage=\"http://www.axis.com\" />\n</reply>",
+  "events": ["PIR_INIT", "VMD4_ANY_INIT", "VMD4_C1P1_INIT", "PORT_0_LEGACY_INIT"]
+}

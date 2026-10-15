@@ -1,147 +1,510 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Axis",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Axis cameras, door stations and speakers, locally: images, detections, rings, clips.",
+    "fr": "Caméras, portiers et haut-parleurs Axis en local : images, détections, sonnerie, clips.",
+    "de": "Axis-Kameras, Türsprechanlagen und Lautsprecher lokal: Bilder, Erkennungen, Klingeln.",
+    "es": "Cámaras, porteros y altavoces Axis en local: imágenes, detecciones, timbre y clips."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-axis:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-axis/main/cover.png",
+  "categories": ["security"],
+  "transports": ["local"],
+  "network_discovery": [
+    {
+      "type": "mdns",
+      "service": "_axis-video._tcp"
+    },
+    {
+      "type": "ssdp",
+      "st": "urn:axis-com:service:BasicService:1"
+    }
+  ],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your Axis devices",
+        "fr": "Vos appareils Axis",
+        "de": "Deine Axis-Geräte",
+        "es": "Sus dispositivos Axis"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Axis cameras, door stations (intercoms) and network speakers, on your network, through their VAPIX API. Use a local account of the device, ideally a dedicated operator account. Nothing goes through a cloud. The \"Search the network\" action lists the Axis devices it finds.",
+        "fr": "Caméras, portiers (interphones) et haut-parleurs réseau Axis, sur votre réseau, par leur API VAPIX. Utilisez un compte local de l'appareil, idéalement un compte opérateur dédié. Rien ne passe par un cloud. L'action « Chercher sur le réseau » liste les appareils Axis trouvés.",
+        "de": "Axis-Kameras, Türsprechanlagen und Netzwerklautsprecher in deinem Netzwerk, über ihre VAPIX-API. Verwende ein lokales Konto des Geräts, am besten ein eigenes Operator-Konto. Nichts läuft über eine Cloud. Die Aktion „Im Netzwerk suchen“ listet die gefundenen Axis-Geräte.",
+        "es": "Cámaras, porteros (intercomunicadores) y altavoces de red Axis, en su red, mediante su API VAPIX. Utilice una cuenta local del dispositivo, idealmente una cuenta de operador dedicada. Nada pasa por una nube. La acción «Buscar en la red» lista los dispositivos Axis encontrados."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-axis/blob/main/docs/en.md",
+          "label": {
+            "en": "Documentation",
+            "fr": "Documentation",
+            "de": "Dokumentation",
+            "es": "Documentación"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "hosts",
+      "type": "string",
+      "label": {
+        "en": "Device addresses",
+        "fr": "Adresses des appareils",
+        "de": "Adressen der Geräte",
+        "es": "Direcciones de los dispositivos"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
+      "description": {
+        "en": "IP addresses or names, separated by commas, with :port if not 80, https:// for HTTPS.",
+        "fr": "Adresses IP ou noms, séparés par des virgules, avec :port si ce n'est pas 80, https:// pour HTTPS.",
+        "de": "IP-Adressen oder Namen, durch Kommas getrennt, mit :Port, falls nicht 80, https:// für HTTPS.",
+        "es": "Direcciones IP o nombres, separados por comas, con :puerto si no es 80, https:// para HTTPS."
+      },
+      "placeholder": {
+        "en": "e.g. 192.168.1.90, 192.168.1.91",
+        "fr": "ex. 192.168.1.90, 192.168.1.91",
+        "de": "z. B. 192.168.1.90, 192.168.1.91",
+        "es": "p. ej. 192.168.1.90, 192.168.1.91"
+      },
       "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "default": ""
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "username",
+      "type": "string",
+      "label": {
+        "en": "User name",
+        "fr": "Nom d'utilisateur",
+        "de": "Benutzername",
+        "es": "Nombre de usuario"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
       "required": false,
-      "default": "celsius",
+      "default": "root"
+    },
+    {
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Password",
+        "fr": "Mot de passe",
+        "de": "Passwort",
+        "es": "Contraseña"
+      },
+      "description": {
+        "en": "Sent to the devices only, never to a cloud. Axis devices block an address after repeated wrong passwords: the integration stops at the first refusal.",
+        "fr": "Envoyé aux appareils seulement, jamais à un cloud. Les appareils Axis bloquent une adresse après des erreurs répétées : l'intégration s'arrête au premier refus.",
+        "de": "Wird nur an die Geräte gesendet, nie an eine Cloud. Axis-Geräte sperren eine Adresse nach wiederholten Fehlversuchen: Die Integration stoppt bei der ersten Ablehnung.",
+        "es": "Solo se envía a los dispositivos, nunca a una nube. Los dispositivos Axis bloquean una dirección tras errores repetidos: la integración se detiene al primer rechazo."
+      },
+      "required": true
+    },
+    {
+      "key": "other_credentials",
+      "type": "section",
+      "label": {
+        "en": "Devices with other credentials",
+        "fr": "Appareils avec d'autres identifiants",
+        "de": "Geräte mit anderen Zugangsdaten",
+        "es": "Dispositivos con otras credenciales"
+      },
+      "description": {
+        "en": "Optional: a door station or a camera whose user name or password differs from the ones above.",
+        "fr": "Facultatif : un portier ou une caméra dont le nom d'utilisateur ou le mot de passe diffère de ceux ci-dessus.",
+        "de": "Optional: eine Türsprechanlage oder Kamera, deren Benutzername oder Passwort von den obigen abweicht.",
+        "es": "Opcional: un portero o una cámara cuyo nombre de usuario o contraseña difiere de los anteriores."
+      }
+    },
+    {
+      "key": "hosts_2",
+      "type": "string",
+      "label": {
+        "en": "Other device addresses",
+        "fr": "Adresses des autres appareils",
+        "de": "Adressen der anderen Geräte",
+        "es": "Direcciones de los otros dispositivos"
+      },
+      "placeholder": {
+        "en": "e.g. 192.168.1.95",
+        "fr": "ex. 192.168.1.95",
+        "de": "z. B. 192.168.1.95",
+        "es": "p. ej. 192.168.1.95"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "username_2",
+      "type": "string",
+      "label": {
+        "en": "Their user name",
+        "fr": "Leur nom d'utilisateur",
+        "de": "Deren Benutzername",
+        "es": "Su nombre de usuario"
+      },
+      "required": false,
+      "default": "root"
+    },
+    {
+      "key": "password_2",
+      "type": "secret",
+      "label": {
+        "en": "Their password",
+        "fr": "Leur mot de passe",
+        "de": "Deren Passwort",
+        "es": "Su contraseña"
+      },
+      "required": false
+    },
+    {
+      "key": "snapshot_interval",
+      "type": "select",
+      "label": {
+        "en": "Camera images",
+        "fr": "Images des caméras",
+        "de": "Kamerabilder",
+        "es": "Imágenes de las cámaras"
+      },
+      "description": {
+        "en": "How often the image of each camera added to Gladys is refreshed. A person or a ring always sends a fresh one.",
+        "fr": "Fréquence de rafraîchissement de l'image des caméras ajoutées. Une personne ou une sonnerie en envoie toujours une neuve.",
+        "de": "Wie oft das Bild jeder hinzugefügten Kamera erneuert wird. Eine Person oder ein Klingeln sendet immer ein neues.",
+        "es": "Frecuencia de actualización de la imagen de las cámaras añadidas. Una persona o un timbre siempre envían una nueva."
+      },
+      "required": false,
+      "default": "5",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "0",
+          "label": {
+            "en": "Only on events",
+            "fr": "Seulement sur événement",
+            "de": "Nur bei Ereignissen",
+            "es": "Solo con eventos"
+          }
+        },
+        {
+          "value": "1",
+          "label": {
+            "en": "Every minute",
+            "fr": "Chaque minute",
+            "de": "Jede Minute",
+            "es": "Cada minuto"
+          }
+        },
+        {
+          "value": "5",
+          "label": {
+            "en": "Every 5 minutes",
+            "fr": "Toutes les 5 minutes",
+            "de": "Alle 5 Minuten",
+            "es": "Cada 5 minutos"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "en": "Every 15 minutes",
+            "fr": "Toutes les 15 minutes",
+            "de": "Alle 15 Minuten",
+            "es": "Cada 15 minutos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "Every hour",
+            "fr": "Toutes les heures",
+            "de": "Jede Stunde",
+            "es": "Cada hora"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "allow_outputs",
+      "type": "boolean",
+      "label": {
+        "en": "Allow driving the outputs",
+        "fr": "Autoriser le pilotage des sorties",
+        "de": "Steuern der Ausgänge erlauben",
+        "es": "Permitir controlar las salidas"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Lets scenes drive the outputs (relays): on a door station they open the door or the gate. Scene action only, never a switch. Off by default.",
+        "fr": "Permet aux scènes de piloter les sorties (relais) : sur un portier, elles ouvrent la porte ou le portail. Action de scène seulement, jamais un interrupteur. Désactivé par défaut.",
+        "de": "Erlaubt Szenen, die Ausgänge (Relais) zu steuern: An einer Türsprechanlage öffnen sie Tür oder Tor. Nur Szenenaktion, nie ein Schalter. Standardmäßig aus.",
+        "es": "Permite que las escenas controlen las salidas (relés): en un portero abren la puerta o el portón. Solo acción de escena, nunca un interruptor. Desactivado por defecto."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": false
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the names",
+        "fr": "Langue des noms",
+        "de": "Sprache der Namen",
+        "es": "Idioma de los nombres"
+      },
+      "description": {
+        "en": "Language of the feature names and of the texts sent to scenes. Names are set when a device is added.",
+        "fr": "Langue des noms de fonctionnalités et des textes envoyés aux scènes. Les noms sont fixés à l'ajout d'un appareil.",
+        "de": "Sprache der Funktionsnamen und der Texte für Szenen. Die Namen werden beim Hinzufügen festgelegt.",
+        "es": "Idioma de los nombres de funciones y de los textos enviados a las escenas. Se fijan al añadir un dispositivo."
+      },
+      "required": false,
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "English",
+            "de": "English",
+            "es": "English"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "Français",
+            "fr": "Français",
+            "de": "Français",
+            "es": "Français"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "Deutsch",
+            "fr": "Deutsch",
+            "de": "Deutsch",
+            "es": "Deutsch"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Español",
+            "fr": "Español",
+            "de": "Español",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
     },
     {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "key": "search_network",
+      "label": {
+        "en": "Search the network",
+        "fr": "Chercher sur le réseau",
+        "de": "Im Netzwerk suchen",
+        "es": "Buscar en la red"
+      },
+      "description": {
+        "en": "Lists the Axis devices that answer on the network (mDNS and UPnP), configured or not.",
+        "fr": "Liste les appareils Axis qui répondent sur le réseau (mDNS et UPnP), configurés ou non.",
+        "de": "Listet die Axis-Geräte, die im Netzwerk antworten (mDNS und UPnP), konfiguriert oder nicht.",
+        "es": "Lista los dispositivos Axis que responden en la red (mDNS y UPnP), configurados o no."
+      },
+      "timeout_seconds": 20
+    },
+    {
+      "key": "audio_clips",
+      "label": {
+        "en": "Audio clips",
+        "fr": "Clips audio",
+        "de": "Audioclips",
+        "es": "Clips de audio"
+      },
+      "description": {
+        "en": "Lists the audio clips stored on each device, by number and name, for the scene action.",
+        "fr": "Liste les clips audio de chaque appareil, par numéro et nom, pour l'action de scène.",
+        "de": "Listet die Audioclips jedes Geräts nach Nummer und Name, für die Szenenaktion.",
+        "es": "Lista los clips de audio de cada dispositivo, por número y nombre, para la acción de escena."
+      },
+      "timeout_seconds": 15
+    },
+    {
+      "key": "stream_url",
+      "label": {
+        "en": "Show the video stream address",
+        "fr": "Afficher l'adresse du flux vidéo",
+        "de": "Adresse des Videostreams anzeigen",
+        "es": "Mostrar la dirección del flujo de vídeo"
+      },
+      "timeout_seconds": 15,
       "fields": [
         {
-          "key": "device",
+          "key": "camera",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          }
         }
       ]
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "person_detected",
+      "label": {
+        "en": "Person detected by a camera",
+        "fr": "Personne détectée par une caméra",
+        "de": "Person von einer Kamera erkannt",
+        "es": "Persona detectada por una cámara"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "An Axis camera saw a person (AXIS Object Analytics or a guard profile). The camera image is fresh.",
+        "fr": "Une caméra Axis a vu une personne (AXIS Object Analytics ou un profil de surveillance). L'image de la caméra est à jour.",
+        "de": "Eine Axis-Kamera hat eine Person gesehen (AXIS Object Analytics oder ein Überwachungsprofil). Das Kamerabild ist aktuell.",
+        "es": "Una cámara Axis vio a una persona (AXIS Object Analytics o un perfil de vigilancia). La imagen de la cámara está al día."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "camera",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          }
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "camera_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Camera name",
+            "fr": "Nom de la caméra",
+            "de": "Name der Kamera",
+            "es": "Nombre de la cámara"
+          }
+        },
+        {
+          "key": "rule_name",
+          "type": "string",
+          "label": {
+            "en": "Scenario name",
+            "fr": "Nom du scénario",
+            "de": "Name des Szenarios",
+            "es": "Nombre del escenario"
+          }
+        }
+      ]
+    },
+    {
+      "key": "doorbell_pressed",
+      "label": {
+        "en": "Someone rang the door station",
+        "fr": "Quelqu'un sonne au portier",
+        "de": "Jemand klingelt an der Tür",
+        "es": "Alguien llama al portero"
+      },
+      "description": {
+        "en": "The call button of an Axis door station was pressed. The door station camera image is fresh.",
+        "fr": "Le bouton d'appel d'un portier Axis a été pressé. L'image de sa caméra est à jour.",
+        "de": "Die Ruftaste einer Axis-Türsprechanlage wurde gedrückt. Das Bild ihrer Kamera ist aktuell.",
+        "es": "Se ha pulsado el botón de llamada de un portero Axis. La imagen de su cámara está al día."
+      },
+      "fields": [
+        {
+          "key": "doorbell",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Door station",
+            "fr": "Portier",
+            "de": "Türsprechanlage",
+            "es": "Portero"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "doorbell_name",
+          "type": "string",
+          "label": {
+            "en": "Door station name",
+            "fr": "Nom du portier",
+            "de": "Name der Türsprechanlage",
+            "es": "Nombre del portero"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "key": "refresh_snapshot",
+      "label": {
+        "en": "Refresh a camera image",
+        "fr": "Rafraîchir l'image d'une caméra",
+        "de": "Kamerabild aktualisieren",
+        "es": "Actualizar la imagen de una cámara"
+      },
       "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+        "en": "Takes a fresh image of the camera for Gladys, to send it in a message right after.",
+        "fr": "Prend une image neuve de la caméra pour Gladys, à envoyer ensuite dans un message.",
+        "de": "Nimmt ein neues Bild der Kamera für Gladys auf, um es danach in einer Nachricht zu senden.",
+        "es": "Toma una imagen nueva de la cámara para Gladys, para enviarla después en un mensaje."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "camera",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "play_audio_clip",
+      "label": {
+        "en": "Play an audio clip",
+        "fr": "Jouer un clip audio",
+        "de": "Audioclip abspielen",
+        "es": "Reproducir un clip de audio"
+      },
+      "description": {
+        "en": "Plays a clip stored on an Axis speaker, door station or camera: a chime, a warning.",
+        "fr": "Joue un clip enregistré sur un haut-parleur, un portier ou une caméra Axis : un carillon, un avertissement.",
+        "de": "Spielt einen auf einem Axis-Lautsprecher, einer Türsprechanlage oder Kamera gespeicherten Clip ab.",
+        "es": "Reproduce un clip guardado en un altavoz, portero o cámara Axis: un carillón, un aviso."
       },
       "timeout_seconds": 15,
       "fields": [
@@ -149,29 +512,231 @@
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
           "required": true
+        },
+        {
+          "key": "clip",
+          "type": "string",
+          "label": {
+            "en": "Clip (number or name)",
+            "fr": "Clip (numéro ou nom)",
+            "de": "Clip (Nummer oder Name)",
+            "es": "Clip (número o nombre)"
+          },
+          "description": {
+            "en": "Empty: the first clip. The \"Audio clips\" action lists them.",
+            "fr": "Vide : le premier clip. L'action « Clips audio » les liste.",
+            "de": "Leer: der erste Clip. Die Aktion „Audioclips“ listet sie.",
+            "es": "Vacío: el primer clip. La acción «Clips de audio» los lista."
+          },
+          "placeholder": {
+            "en": "e.g. 0 or Doorbell chime",
+            "fr": "ex. 0 ou Carillon",
+            "de": "z. B. 0 oder Gong",
+            "es": "p. ej. 0 o Carillón"
+          }
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "clip_name",
+          "type": "string",
+          "label": {
+            "en": "Clip played",
+            "fr": "Clip joué",
+            "de": "Abgespielter Clip",
+            "es": "Clip reproducido"
+          }
+        }
+      ]
+    },
+    {
+      "key": "set_output",
+      "label": {
+        "en": "Drive an output (relay)",
+        "fr": "Piloter une sortie (relais)",
+        "de": "Ausgang (Relais) steuern",
+        "es": "Controlar una salida (relé)"
+      },
+      "description": {
+        "en": "Drives an output of an Axis device: on a door station it opens the door. Only once allowed in the configuration of the integration.",
+        "fr": "Pilote une sortie d'un appareil Axis : sur un portier, elle ouvre la porte. Seulement une fois autorisé dans la configuration de l'intégration.",
+        "de": "Steuert einen Ausgang eines Axis-Geräts: An einer Türsprechanlage öffnet er die Tür. Nur wenn in der Konfiguration der Integration erlaubt.",
+        "es": "Controla una salida de un dispositivo Axis: en un portero abre la puerta. Solo si se ha autorizado en la configuración de la integración."
+      },
+      "timeout_seconds": 15,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
+          "required": true
+        },
+        {
+          "key": "output",
+          "type": "select",
+          "label": {
+            "en": "Output",
+            "fr": "Sortie",
+            "de": "Ausgang",
+            "es": "Salida"
+          },
+          "required": true,
+          "default": "1",
+          "options": [
+            {
+              "value": "1",
+              "label": {
+                "en": "Output 1",
+                "fr": "Sortie 1",
+                "de": "Ausgang 1",
+                "es": "Salida 1"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "Output 2",
+                "fr": "Sortie 2",
+                "de": "Ausgang 2",
+                "es": "Salida 2"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "Output 3",
+                "fr": "Sortie 3",
+                "de": "Ausgang 3",
+                "es": "Salida 3"
+              }
+            },
+            {
+              "value": "4",
+              "label": {
+                "en": "Output 4",
+                "fr": "Sortie 4",
+                "de": "Ausgang 4",
+                "es": "Salida 4"
+              }
+            }
+          ]
+        },
+        {
+          "key": "mode",
+          "type": "select",
+          "label": {
+            "en": "Command",
+            "fr": "Commande",
+            "de": "Befehl",
+            "es": "Orden"
+          },
+          "required": true,
+          "default": "pulse_1",
+          "options": [
+            {
+              "value": "pulse_1",
+              "label": {
+                "en": "Pulse of 1 second",
+                "fr": "Impulsion d'une seconde",
+                "de": "Impuls von 1 Sekunde",
+                "es": "Impulso de 1 segundo"
+              }
+            },
+            {
+              "value": "pulse_3",
+              "label": {
+                "en": "Pulse of 3 seconds",
+                "fr": "Impulsion de 3 secondes",
+                "de": "Impuls von 3 Sekunden",
+                "es": "Impulso de 3 segundos"
+              }
+            },
+            {
+              "value": "pulse_10",
+              "label": {
+                "en": "Pulse of 10 seconds",
+                "fr": "Impulsion de 10 secondes",
+                "de": "Impuls von 10 Sekunden",
+                "es": "Impulso de 10 segundos"
+              }
+            },
+            {
+              "value": "on",
+              "label": {
+                "en": "Activate",
+                "fr": "Activer",
+                "de": "Aktivieren",
+                "es": "Activar"
+              }
+            },
+            {
+              "value": "off",
+              "label": {
+                "en": "Deactivate",
+                "fr": "Désactiver",
+                "de": "Deaktivieren",
+                "es": "Desactivar"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "output_name",
+          "type": "string",
+          "label": {
+            "en": "Output name",
+            "fr": "Nom de la sortie",
+            "de": "Name des Ausgangs",
+            "es": "Nombre de la salida"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "axis",
+      "label": {
+        "en": "Axis",
+        "fr": "Axis",
+        "de": "Axis",
+        "es": "Axis"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Latest persons and rings with their image, and the state of the devices.",
+        "fr": "Dernières personnes et sonneries avec leur image, et état des appareils.",
+        "de": "Letzte Personen und Klingeln mit ihrem Bild und der Zustand der Geräte.",
+        "es": "Últimas personas y timbres con su imagen y estado de los dispositivos."
+      },
+      "icon": "video",
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device (empty: all)",
+            "fr": "Appareil (vide : tous)",
+            "de": "Gerät (leer: alle)",
+            "es": "Dispositivo (vacío: todos)"
+          }
+        }
+      ]
     }
   ]
 }

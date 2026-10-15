@@ -1,0 +1,76 @@
+{
+  "_about": "AXIS I8116-E Network Video Intercom: the call button on input 0 (the case of the Home Assistant integration), a door lock relay on output 1, WebSocket events. Values invented.",
+  "rtspPort": 554,
+  "apiList": [
+    {
+      "id": "api-discovery",
+      "version": "1.0",
+      "name": "API Discovery Service"
+    },
+    {
+      "id": "basic-device-info",
+      "version": "1.1",
+      "name": "Basic Device Information"
+    },
+    {
+      "id": "param-cgi",
+      "version": "1.0",
+      "name": "Legacy Parameter Handling"
+    },
+    {
+      "id": "io-port-management",
+      "version": "1.0",
+      "name": "IO Port Management"
+    },
+    {
+      "id": "event-streaming-over-websocket",
+      "version": "1.0",
+      "name": "Event streaming over WebSocket"
+    }
+  ],
+  "basicDeviceInfo": {
+    "ProdNbr": "I8116-E",
+    "ProdType": "Network Video Intercom",
+    "SerialNumber": "B8A44F7A8B9C",
+    "Version": "11.11.73",
+    "Architecture": "aarch64",
+    "Brand": "AXIS",
+    "BuildDate": "Jun 02 2026 10:24",
+    "HardwareID": "9A1",
+    "ProdFullName": "AXIS I8116-E Network Video Intercom",
+    "ProdShortName": "AXIS I8116-E",
+    "ProdVariant": "",
+    "Soc": "Axis Artpec-8",
+    "SocSerialNumber": "00000000-00000000-00000000-00000000",
+    "WebURL": "http://www.axis.com"
+  },
+  "params": {
+    "root.Properties.Image": "root.Properties.Image.Format=jpeg,mjpeg,h264\nroot.Properties.Image.Resolution=2592x1944,1920x1440,1280x960,1024x768,800x600,640x480,480x360,320x240\n",
+    "root.Properties.Audio": "root.Properties.Audio.Audio=yes\nroot.Properties.Audio.DuplexMode=full\n",
+    "root.ImageSource": "root.ImageSource.NbrOfSources=1\n",
+    "root.MediaClip": "root.MediaClip.M0.Name=Ringtone\nroot.MediaClip.M0.Type=audio\n",
+    "root.Network.RTSP": "root.Network.RTSP.Port=554\n",
+    "root.Brand.ProdNbr": "root.Brand.ProdNbr=I8116-E\n"
+  },
+  "ports": [
+    {
+      "port": "0",
+      "configurable": false,
+      "usage": "",
+      "name": "",
+      "direction": "input",
+      "state": "open",
+      "normalState": "open"
+    },
+    {
+      "port": "1",
+      "configurable": false,
+      "usage": "",
+      "name": "Door lock",
+      "direction": "output",
+      "state": "open",
+      "normalState": "open"
+    }
+  ],
+  "events": ["CALL_BUTTON_INIT"]
+}

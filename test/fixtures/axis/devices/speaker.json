@@ -1,0 +1,51 @@
+{
+  "_about": "AXIS C1310-E Network Horn Speaker: no video, audio clips. Values invented.",
+  "rtspPort": 554,
+  "apiList": [
+    {
+      "id": "api-discovery",
+      "version": "1.0",
+      "name": "API Discovery Service"
+    },
+    {
+      "id": "basic-device-info",
+      "version": "1.1",
+      "name": "Basic Device Information"
+    },
+    {
+      "id": "param-cgi",
+      "version": "1.0",
+      "name": "Legacy Parameter Handling"
+    },
+    {
+      "id": "event-streaming-over-websocket",
+      "version": "1.0",
+      "name": "Event streaming over WebSocket"
+    }
+  ],
+  "basicDeviceInfo": {
+    "ProdNbr": "C1310-E",
+    "ProdType": "Network Horn Speaker",
+    "SerialNumber": "ACCC8E0F1E2D",
+    "Version": "11.11.80",
+    "Architecture": "aarch64",
+    "Brand": "AXIS",
+    "BuildDate": "Jun 02 2026 10:24",
+    "HardwareID": "9A1",
+    "ProdFullName": "AXIS C1310-E Network Horn Speaker",
+    "ProdShortName": "AXIS C1310-E",
+    "ProdVariant": "",
+    "Soc": "Axis Artpec-8",
+    "SocSerialNumber": "00000000-00000000-00000000-00000000",
+    "WebURL": "http://www.axis.com"
+  },
+  "params": {
+    "root.Properties.Image": "",
+    "root.Properties.Audio": "root.Properties.Audio.Audio=yes\nroot.Properties.Audio.DuplexMode=full\n",
+    "root.MediaClip": "root.MediaClip.M0.Name=Doorbell chime\nroot.MediaClip.M0.Type=audio\nroot.MediaClip.M1.Name=Closing time\nroot.MediaClip.M1.Type=audio\n",
+    "root.Network.RTSP": "root.Network.RTSP.Port=554\n",
+    "root.Brand.ProdNbr": "root.Brand.ProdNbr=C1310-E\n"
+  },
+  "ports": [],
+  "events": []
+}
